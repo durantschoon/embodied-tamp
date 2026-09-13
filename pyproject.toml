@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "embodied-tamp"
+version = "0.1.0"
+description = "Research and learning on shared tasks across robot embodiments."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+dependencies = ["drake"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+notebooks = ["jupyterlab", "ipykernel"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["embodied_tamp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
