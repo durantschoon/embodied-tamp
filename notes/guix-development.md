@@ -31,6 +31,8 @@ The Mac checkout at `/Users/durant/Repos/ds/embodied-tamp` is mounted at
   while the script runs with `--host '*' --port 7000`.
 - Browser automation had no available browser connection, so actual browser
   rendering and WebSocket display have not been visually verified.
+- `just check` passes from both the outer `orb-guix` session and the project's
+  pure Guix shell. The pinned manifest provides `just` 1.43.0.
 
 `channels.scm` captures the existing channel set, including its authentication
 introductions. This project's manifest uses Guix packages only; Nonguix is retained
@@ -53,15 +55,34 @@ git clone https://github.com/durantschoon/embodied-tamp.git
 cd embodied-tamp
 ```
 
-From either checkout, create the virtual environment once and enter the shell:
+From either checkout, the normal commands are:
+
+```sh
+just setup
+just check
+just smoke
+```
+
+`just` lists the recipes. `just shell` opens an interactive development shell;
+the recipes also work from inside it. All recipes use the project environment
+through `scripts/guix-shell.sh`. Future demos follow `just <name>` and
+`just <name>-check`, with recipes added as experiments are implemented.
+
+`just` is already available in the user's outer `orb-guix` environment and is
+included in this project's manifest. On another Guix machine without `just`,
+bootstrap the virtual environment and run the recipe through the launcher:
 
 ```sh
 ./scripts/guix-shell.sh python3 -m venv .venv-guix
-./scripts/guix-shell.sh
+./scripts/guix-shell.sh just setup
+./scripts/guix-shell.sh just shell
 ```
 
 The launcher defaults to a plain Bash shell so personal shell startup files do
 not replace the selected Python or libraries. `exit` returns to the outer shell.
+Within this shell, `EMBODIED_TAMP_GUIX_ROOT` tells the launcher to reuse the current
+project environment rather than requiring Guix to be on the pure shell's PATH.
+Exit and reenter after changing the manifest or channel pins.
 To execute one command, pass it to the launcher, for example:
 
 ```sh
@@ -89,10 +110,10 @@ the virtual environment between machines or use its Linux binaries on macOS.
 
 ## View the environment smoke scene
 
-Inside the Guix project shell, run:
+From the checkout inside `orb-guix` or the Guix project shell, run:
 
 ```sh
-python experiments/meshcat_smoke.py --host '*' --port 7000
+just smoke
 ```
 
 Open `http://guix-dev.orb.local:7000/` from the Mac and look for a blue sphere above
@@ -101,8 +122,9 @@ Ctrl-C to stop. This uses the existing OrbStack network without changing contain
 ports or the user's dotfiles. A GET request works; Meshcat returned 404 to an HTTP
 HEAD probe, so use GET when checking reachability.
 
-On native Linux, omit `--host '*'` and use the printed localhost URL. The host
-override permits access from outside the container. `--check-only` requires no
+On native Linux, run `just smoke localhost` and use the printed localhost URL.
+Use `just smoke '*' 7001` to select a different port. The recipe's default host
+permits access from outside the container. `just smoke-check` requires no
 interactive browser and exits after checking the scene tree and viewer response.
 
 ## Compatibility decisions

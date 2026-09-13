@@ -77,18 +77,39 @@ this alias enters OrbStack's `guix-dev` container, which already mounts the chec
 ```sh
 orb-guix
 cd /root/Repos/ds/embodied-tamp
-./scripts/guix-shell.sh python3 -m venv .venv-guix
-./scripts/guix-shell.sh
+just setup
+just smoke
 ```
+
+Once setup is complete, daily commands are short:
+
+| Command | Purpose |
+| --- | --- |
+| `just` | List the available recipes. |
+| `just setup` | Create/update the virtual environment using the pinned dependencies. |
+| `just shell` | Enter the project development shell. |
+| `just smoke` | Keep the Meshcat sphere demo open on port 7000. |
+| `just smoke-check` | Check the scene/server without an interactive browser. |
+| `just check` | Check Python dependencies and run `smoke-check`. |
+| `just test` | Run pytest; currently exits with code 5 because there are no tests. |
+
+Run these inside `orb-guix` or on Linux with Guix. They enter the pinned environment
+automatically and also work from within `just shell`. Use `just smoke localhost`
+for native Linux, or `just smoke '*' 7001` for a different port.
+
+The experiment naming convention is **`just <name>`** for an interactive demo and
+**`just <name>-check`** for its noninteractive check. Add recipes when an experiment
+exists; `smoke` is the only experiment implemented so far.
 
 The launcher uses the pinned `channels.scm` and `manifest.scm`, supplies Python
 3.12 and native libraries, and activates `.venv-guix` when it exists. Install the
-validated runtime/development wheel versions inside that shell:
+validated runtime/development wheel versions with `just setup`. The underlying
+commands, also usable on a Guix machine that does not have `just` installed yet, are:
 
 ```sh
-python -m pip install -c constraints-guix.txt -e '.[dev]'
-python -m pip check
-python experiments/meshcat_smoke.py --check-only
+./scripts/guix-shell.sh python3 -m venv .venv-guix
+./scripts/guix-shell.sh python -m pip install -c constraints-guix.txt -e '.[dev]'
+./scripts/guix-shell.sh just check
 ```
 
 Python 3.12.12, Drake 1.57.0, and pytest 9.1.1 are installed in the verified ARM64
@@ -100,16 +121,16 @@ native Guix package definition for Drake. See
 portability instructions, and remaining checks. Guix is not listed among Drake's
 [officially supported configurations](https://drake.mit.edu/installation.html).
 
-To view the static sphere from the Mac, keep this command running inside the shell:
+To view the static sphere from the Mac, keep this command running inside `orb-guix`:
 
 ```sh
-python experiments/meshcat_smoke.py --host '*' --port 7000
+just smoke
 ```
 
 Open `http://guix-dev.orb.local:7000/` on the Mac and press Enter in the terminal
-when finished. On native Linux, omit `--host '*'` to use the default localhost
-binding and open the printed URL. The `'*'` binding allows access from outside the
-container; the default is local access only.
+when finished. On native Linux, `just smoke localhost` uses a local binding and
+prints its URL. The recipe defaults to `'*'` for OrbStack access; the underlying
+Python script defaults to localhost.
 
 The distribution dependency is named `drake`; its Python imports use `pydrake`.
 Use the upstream package, following Drake's
@@ -133,7 +154,7 @@ adding them. The notebook extra here installs JupyterLab and its Python kernel o
 Pytest is configured for `tests/`. Once behavior and tests are added, run:
 
 ```sh
-python -m pytest
+just test
 ```
 
 There are no pytest tests yet; pytest reports no tests collected (exit code 5).
@@ -150,6 +171,7 @@ the checkout path itself; it does not require OrbStack or `/root/Repos`.
 AGENTS.md                Scope and working rules for future coding sessions
 FUTURE_WORK.md           Deferred research directions
 pyproject.toml          Package, dependency, and pytest configuration
+justfile                Short commands for setup, checks, and experiments
 manifest.scm            Guix interpreter and native runtime dependencies
 channels.scm            Pinned Guix channel revisions
 constraints-guix.txt     Validated Python runtime/development wheel versions

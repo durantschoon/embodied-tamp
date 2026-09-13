@@ -66,8 +66,11 @@ current milestone.
   at `/root/Repos/ds/embodied-tamp`.
 - Use `scripts/guix-shell.sh` for the project environment. Keep Guix inputs in
   `manifest.scm` and channel revisions in `channels.scm`.
+- Expose routine commands as small `justfile` recipes. Use `just <name>` for an
+  interactive experiment and `just <name>-check` for its noninteractive check.
+  Add recipes only for implemented experiments; keep `just check` noninteractive.
 - Keep upstream Python wheels in `.venv-guix/`, separate from any macOS environment.
 - Use `constraints-guix.txt` for the validated runtime/development wheel versions.
-- Run `python experiments/meshcat_smoke.py --check-only` inside the project shell
-  to check the native runtime and Meshcat server. It does not test robot behavior.
+- Run `just check` inside `orb-guix` or the project shell to check dependencies,
+  the native runtime, and the Meshcat server. It does not test robot behavior.
 - Document verified setup steps and limitations in `notes/guix-development.md`.

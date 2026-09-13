@@ -3,17 +3,22 @@
 `meshcat_smoke.py` validates the Drake environment by displaying one static sphere.
 It is not a robot simulation, planner, or embodiment comparison.
 
-From the Guix project shell:
+From the checkout inside `orb-guix` or the Guix project shell:
 
 ```sh
-python experiments/meshcat_smoke.py --check-only
-python experiments/meshcat_smoke.py --host '*' --port 7000
+just smoke-check
+just smoke
 ```
 
 The first command checks that Meshcat retains the sphere and serves its viewer
 page, then exits. The second holds the scene open until Enter or Ctrl-C. On this
-Mac, view it at `http://guix-dev.orb.local:7000/`. Native Linux users can omit the
-host override to use localhost. Browser rendering needs a separate visual check.
+Mac, view it at `http://guix-dev.orb.local:7000/`. Native Linux users can run
+`just smoke localhost`. Use `just smoke '*' 7001` to select another port.
+Browser rendering needs a separate visual check.
+
+Future experiments follow the same convention: `just <name>` for the interactive
+demo, `just <name>-check` for the noninteractive check. Only add the pair when
+the experiment is implemented. `just` lists the current recipes.
 
 This directory will later hold the first comparison script and its small input
 configurations.
