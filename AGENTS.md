@@ -67,4 +67,7 @@ current milestone.
 - Use `scripts/guix-shell.sh` for the project environment. Keep Guix inputs in
   `manifest.scm` and channel revisions in `channels.scm`.
 - Keep upstream Python wheels in `.venv-guix/`, separate from any macOS environment.
+- Use `constraints-guix.txt` for the validated runtime/development wheel versions.
+- Run `python experiments/meshcat_smoke.py --check-only` inside the project shell
+  to check the native runtime and Meshcat server. It does not test robot behavior.
 - Document verified setup steps and limitations in `notes/guix-development.md`.

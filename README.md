@@ -3,8 +3,9 @@
 A Python research and learning project on embodiment and task and motion planning
 (TAMP), using Drake / pydrake and Meshcat.
 
-**Status: initial scaffold only.** No simulation, robot models, geometric refiner,
-planner, or experimental results have been implemented.
+**Status: scaffold and Guix/Drake environment smoke check.** A static sphere can be
+served in Meshcat. No robot simulation, robot models, geometric refiner, planner,
+or embodiment comparison has been implemented.
 
 ## Research question
 
@@ -81,21 +82,34 @@ cd /root/Repos/ds/embodied-tamp
 ```
 
 The launcher uses the pinned `channels.scm` and `manifest.scm`, supplies Python
-3.12 and native libraries, and activates `.venv-guix` when it exists. The initial
-shell, interpreter, and virtual environment have been verified. The next setup
-step inside that shell is:
+3.12 and native libraries, and activates `.venv-guix` when it exists. Install the
+validated runtime/development wheel versions inside that shell:
 
 ```sh
-python -m pip install -e '.[dev]'
-python -c "import embodied_tamp; import pydrake; from pydrake.geometry import StartMeshcat"
+python -m pip install -c constraints-guix.txt -e '.[dev]'
+python -m pip check
+python experiments/meshcat_smoke.py --check-only
 ```
 
-Drake installation and visualization have not yet been verified. This is a
+Python 3.12.12, Drake 1.57.0, and pytest 9.1.1 are installed in the verified ARM64
+environment. Drake imports, Meshcat's geometry/server checks, and HTTP access from
+the Mac pass. Browser rendering has not been visually inspected. This is a
 Guix-managed interpreter/native environment with upstream Python wheels, not a
 native Guix package definition for Drake. See
 [Guix development notes](notes/guix-development.md) for the verified baseline,
 portability instructions, and remaining checks. Guix is not listed among Drake's
 [officially supported configurations](https://drake.mit.edu/installation.html).
+
+To view the static sphere from the Mac, keep this command running inside the shell:
+
+```sh
+python experiments/meshcat_smoke.py --host '*' --port 7000
+```
+
+Open `http://guix-dev.orb.local:7000/` on the Mac and press Enter in the terminal
+when finished. On native Linux, omit `--host '*'` to use the default localhost
+binding and open the printed URL. The `'*'` binding allows access from outside the
+container; the default is local access only.
 
 The distribution dependency is named `drake`; its Python imports use `pydrake`.
 Use the upstream package, following Drake's
@@ -104,11 +118,10 @@ Visualization will use Drake's Meshcat integration, as shown in its
 [rendering tutorial](https://drake.mit.edu/tutorials/rendering_multibody_plant.html).
 No separate Meshcat package is declared.
 
-Optional notebook tools:
+Optional notebook tools (not yet validated or fully pinned):
 
 ```sh
-python -m pip install -e '.[dev,notebooks]'
-jupyter lab
+python -m pip install -c constraints-guix.txt -e '.[dev,notebooks]'
 ```
 
 The MIT [Robotic Manipulation Drake chapter](https://manipulation.csail.mit.edu/drake.html)
@@ -123,8 +136,9 @@ Pytest is configured for `tests/`. Once behavior and tests are added, run:
 python -m pytest
 ```
 
-There are no tests yet; pytest currently reports no tests collected (exit code 5).
-No Drake runtime or simulation validation is claimed by this scaffold.
+There are no pytest tests yet; pytest reports no tests collected (exit code 5).
+The environment smoke script provides the current runtime check. Geometric and
+planning tests will accompany that logic when it is implemented.
 
 To continue elsewhere, clone this repository on a Linux machine with Guix, enter
 the checkout, and run the same launcher/bootstrap commands. The launcher resolves
@@ -138,16 +152,17 @@ FUTURE_WORK.md           Deferred research directions
 pyproject.toml          Package, dependency, and pytest configuration
 manifest.scm            Guix interpreter and native runtime dependencies
 channels.scm            Pinned Guix channel revisions
+constraints-guix.txt     Validated Python runtime/development wheel versions
 scripts/guix-shell.sh   Project development shell
 src/embodied_tamp/       Importable package; currently a docstring only
 tests/                  Future behavioral and geometric regression tests
 notebooks/              Learning exercises and exploratory analysis
 models/                 Small model assets and their provenance
-experiments/            Future runnable comparisons and input configurations
+experiments/            Meshcat environment check; future robot comparisons
 notes/                  Learning log, decisions, and curated findings
 ```
 
-Each currently empty work area has a short README explaining its role. Prefer
+Each work area has a short README explaining its role. Prefer
 small Python functions and explicit parameters. Move reusable notebook code into
 the package only when there is code worth reusing.
 
@@ -156,8 +171,9 @@ the package only when there is code worth reusing.
 These are requirements for the eventual comparison, not guarantees of the scaffold:
 
 - Record the git revision, Python/Drake and other dependency versions, OS, and
-  architecture. Guix channels are pinned. Python wheel versions are not pinned yet;
-  commit tested constraints and installation instructions once Drake works.
+  architecture. Guix channels and baseline runtime/development wheel versions are
+  pinned. Wheel hashes, isolated build dependencies, and notebook extras are not
+  locked; the current setup is not a fully hermetic build.
 - Record robot model sources, versions or checksums, licenses, units, coordinate
   frames, base transforms, and joint limits. Track small inputs in the repository.
 - Record task parameters, initial conditions, solver/options, constraint tolerances,

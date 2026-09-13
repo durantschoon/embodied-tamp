@@ -10,7 +10,11 @@
      "python-pip"
      "nss-certs"
      "glibc"
+     "glib"
+     "libx11"
+     "libsm"
      "coreutils"
+     "git"
      "bash"))
   ;; Selecting the package directly avoids the gcc -> gcc-toolchain alias,
   ;; whose outputs do not include a separate C++ runtime.
